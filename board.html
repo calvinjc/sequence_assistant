@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="./libs/bootstrap/bootstrap.min.css">
+
+    <script src="./libs/jquery-1.11.3.min.js"></script>
+    <script src="./libs/bootstrap/bootstrap.min.js"></script>
+    <script src="./libs/handlebars.js"></script>
+    <script src="./libs/underscore.js"></script>
+    <script src="sequence.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Sequence Board Game Assistant</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="gameBoardDiv"></div>
+            </div>
+            <div class="col-md-2">
+                <div id="displayOptionsDiv">
+                    <h4>Options:</h4>
+                    <div class="checkbox totalWorth">
+                        <label><input id="showTotalWorth" type="checkbox">Show Total Worth</label>
+                    </div>
+                    <div class="checkbox colorWorth">
+                        <label><input id="showColorWorth" type="checkbox">Show Color Worth</label>
+                    </div>
+                    <div class="checkbox onlyHand">
+                        <label><input id="showOnlyHand" type="checkbox">Show Only Hand Worth</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div id="cardListDiv"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script id="gameBoard" type="text/template">
+        <table class="game-board-table table table-bordered">
+            {{#each rows}}
+                <tr>
+                    {{#each cells}}
+                        <td class="game-cell {{token}} {{showHighlight token highlight}}">
+                            {{value}}
+                            <br/>
+                            {{#if token}}
+                                {{#if (showRemoveToken token)}}
+                                    <div class="remove-token">Remove</div>
+                                {{/if}}
+                            {{else}}
+                                {{#if (showWorth ../../showOnlyHand highlight)}}
+                                    {{#if ../../showColorWorth}}
+                                        <div class="red-worth">R: {{redWorth}}</div>
+                                        <div class="blue-worth">B: {{blueWorth}}</div>
+                                    {{/if}}
+                                    {{#if ../../showTotalWorth}}
+                                        <div class="total-worth">{{totalWorth}}</div>
+                                    {{/if}}
+                                {{/if}}
+                            {{/if}}
+                        </td>
+                    {{/each}}
+                </tr>
+            {{/each}}
+        </table>
+
+        <button id="addRedToken" class="add-token btn">Add Red Token</button>
+        <button id="addBlueToken" class="add-token btn">Add Blue Token</button>
+        {{#if addTokenMode}}
+            <button id="cancelAddToken" class="add-token btn">Cancel</button>
+        {{/if}}
+        <br/>
+        <div class="hand">
+        <h4>Hand:</h4>
+        {{#each hand}}
+            <button class="hand-card btn">{{this}}</button>
+        {{/each}}
+        </div>
+    </script>
+
+    <script id="cardList" type="text/template">
+        <h2 class="hand-header">Add a card to your hand:</h2>
+        <div class="row">
+            <div class="select-card-suit col-md-3">
+                <ul class="list-group">
+                    {{#each hearts}}
+                        <li class="select-card list-group-item" value="{{value}}">{{value}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="select-card-suit col-md-3">
+                <ul class="list-group">
+                    {{#each diamonds}}
+                        <li class="select-card list-group-item" value="{{value}}">{{value}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="select-card-suit col-md-3">
+                <ul class="list-group">
+                    {{#each clubs}}
+                        <li class="select-card list-group-item" value="{{value}}">{{value}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="select-card-suit col-md-3">
+                <ul class="list-group">
+                    {{#each spades}}
+                        <li class="select-card list-group-item" value="{{value}}">{{value}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+
+    </script>
+
+</body>
+</html>

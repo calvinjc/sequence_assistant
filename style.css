@@ -1,0 +1,49 @@
+
+.table.table-bordered.game-board-table {
+    border: 2px solid black;
+    table-layout: fixed;
+}
+.table-bordered>tbody>tr>td.game-cell {
+    border: 1px solid black;
+}
+
+.game-cell.highlight {
+    background-color: #ffff80;
+}
+
+.remove-token {
+    color: #eeeeee;
+}
+
+
+.game-cell.R {
+    background-color: #ff0000;
+}
+.game-cell.B {
+    background-color: #0000ff;
+}
+.game-cell.G {
+    background-color: #00ff00;
+}
+.game-cell.W {
+    background-color: #ff9933;
+}
+
+.red-worth {
+    color: #ff0000;
+}
+.blue-worth {
+    color: #0000ff;
+}
+
+.hand-header {
+    margin-top: 0px;
+}
+.hand {
+    margin-bottom: 10px;
+}
+
+.select-card-suit.col-md-3 {
+    padding-left: 0px;
+    padding-right: 0px;
+}
