@@ -47,7 +47,7 @@
         <table class="game-board-table table table-bordered">
             {{#each rows}}
                 <tr>
-                    {{#each cells}}
+                    {{#each this}}
                         <td class="game-cell {{token}} {{showHighlight token highlight}}">
                             {{value}}
                             <br/>

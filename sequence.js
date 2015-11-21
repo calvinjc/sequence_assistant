@@ -34,8 +34,8 @@ $(document).ready(function(){
 renderBoard = function() {
     for (var x = 0; x < gameBoard.length; x++) {
         var row = gameBoard[x];
-        for (var y = 0; y < row.cells.length; y++) {
-            var cell = row.cells[y];
+        for (var y = 0; y < row.length; y++) {
+            var cell = row[y];
             cell.redWorth = calculateSquareWorth(x, y, "R");
             cell.blueWorth = calculateSquareWorth(x, y, "B");
             cell.totalWorth = cell.redWorth + cell.blueWorth;
@@ -62,8 +62,8 @@ renderBoard = function() {
             var card = _.findWhere(cardDeck, {value: cardValue});
             var loc1 = card.locations[0];
             var loc2 = card.locations[1];
-            gameBoard[loc1.x].cells[loc1.y].highlight = "";
-            gameBoard[loc2.x].cells[loc2.y].highlight = "";
+            gameBoard[loc1.x][loc1.y].highlight = "";
+            gameBoard[loc2.x][loc2.y].highlight = "";
         }
 
         renderBoard();
@@ -74,10 +74,10 @@ renderBoard = function() {
             var x = this.parentNode.rowIndex;
             var y = this.cellIndex;
 
-            if (gameBoard[x].cells[y].token === "") {
+            if (gameBoard[x][y].token === "") {
                 placeToken(x, y, addTokenColor);
             }
-            else if (gameBoard[x].cells[y].token === addTokenColor || _.contains(myHand, "JS") || _.contains(myHand, "JH")) {
+            else if (gameBoard[x][y].token === addTokenColor || _.contains(myHand, "JS") || _.contains(myHand, "JH")) {
                 clearToken(x, y);
             }
         }
@@ -102,7 +102,7 @@ renderBoard = function() {
 
 calculateSquareWorth = function(x, y, color) {
     var worth = 10;
-    if (gameBoard[x].cells[y].token !== "") {
+    if (gameBoard[x][y].token !== "") {
         return 0;
     }
 
@@ -235,8 +235,8 @@ calculateDiagonalB = function(x, y, color) {
 
 safeCheckMyValue = function(x, y, myColor) {
     if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
-        var cell = gameBoard[x].cells[y];
-        return (gameBoard[x].cells[y].token === myColor || gameBoard[x].cells[y].token === "W");
+        var cell = gameBoard[x][y];
+        return (gameBoard[x][y].token === myColor || gameBoard[x][y].token === "W");
     }
     return false;
 };
@@ -248,8 +248,8 @@ safeCheckOpponentValue = function(x, y, myColor) {
     if (myColor === "G") opponentBColor = "R";
 
     if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
-        var cell = gameBoard[x].cells[y];
-        return (gameBoard[x].cells[y].token === opponentAColor || gameBoard[x].cells[y].token === opponentBColor);
+        var cell = gameBoard[x][y];
+        return (gameBoard[x][y].token === opponentAColor || gameBoard[x][y].token === opponentBColor);
     }
     return true;
 };
@@ -281,8 +281,8 @@ renderCardList = function() {
             var card = _.findWhere(cardDeck, {value: cardValue});
             var loc1 = card.locations[0];
             var loc2 = card.locations[1];
-            gameBoard[loc1.x].cells[loc1.y].highlight = "highlight";
-            gameBoard[loc2.x].cells[loc2.y].highlight = "highlight";
+            gameBoard[loc1.x][loc1.y].highlight = "highlight";
+            gameBoard[loc2.x][loc2.y].highlight = "highlight";
         }
 
         renderBoard();
@@ -290,13 +290,13 @@ renderCardList = function() {
 };
 
 placeToken = function(x, y, color) {
-    if (_.contains(["R","B","G"], color) && gameBoard[x].cells[y].token === "") {
-        gameBoard[x].cells[y].token = color;
+    if (_.contains(["R","B","G"], color) && gameBoard[x][y].token === "") {
+        gameBoard[x][y].token = color;
     }
     renderBoard();
 };
 clearToken = function(x, y) {
-    gameBoard[x].cells[y].token = "";
+    gameBoard[x][y].token = "";
     renderBoard();
 };
 
@@ -376,7 +376,7 @@ cardDeck = [
 ];
 
 gameBoard = [
-    { cells: [
+    [
         {value: "W", token: "W"},
         {value: "2S", token: ""},
         {value: "3S", token: ""},
@@ -386,9 +386,9 @@ gameBoard = [
         {value: "7S", token: ""},
         {value: "8S", token: ""},
         {value: "9S", token: ""},
-        {value: "W", token: "W"}]
-    },
-    { cells: [
+        {value: "W", token: "W"}
+    ],
+    [
         {value: "6C", token: ""},
         {value: "5C", token: ""},
         {value: "4C", token: ""},
@@ -398,9 +398,9 @@ gameBoard = [
         {value: "KH", token: ""},
         {value: "QH", token: ""},
         {value: "TH", token: ""},
-        {value: "TS", token: ""}]
-    },
-    { cells: [
+        {value: "TS", token: ""}
+    ],
+    [
         {value: "7C", token: ""},
         {value: "AS", token: ""},
         {value: "2D", token: ""},
@@ -410,9 +410,9 @@ gameBoard = [
         {value: "6D", token: ""},
         {value: "7D", token: ""},
         {value: "9H", token: ""},
-        {value: "QS", token: ""}]
-    },
-    { cells: [
+        {value: "QS", token: ""}
+    ],
+    [
         {value: "8C", token: ""},
         {value: "KS", token: ""},
         {value: "6C", token: ""},
@@ -422,9 +422,9 @@ gameBoard = [
         {value: "2C", token: ""},
         {value: "8D", token: ""},
         {value: "8H", token: ""},
-        {value: "KS", token: ""}]
-    },
-    { cells: [
+        {value: "KS", token: ""}
+    ],
+    [
         {value: "9C", token: ""},
         {value: "QS", token: ""},
         {value: "7C", token: ""},
@@ -434,9 +434,9 @@ gameBoard = [
         {value: "AH", token: ""},
         {value: "9D", token: ""},
         {value: "7H", token: ""},
-        {value: "AS", token: ""}]
-    },
-    { cells: [
+        {value: "AS", token: ""}
+    ],
+    [
         {value: "TC", token: ""},
         {value: "TS", token: ""},
         {value: "8C", token: ""},
@@ -446,9 +446,9 @@ gameBoard = [
         {value: "KH", token: ""},
         {value: "TD", token: ""},
         {value: "6H", token: ""},
-        {value: "2D", token: ""}]
-    },
-    { cells: [
+        {value: "2D", token: ""}
+    ],
+    [
         {value: "QC", token: ""},
         {value: "9S", token: ""},
         {value: "9C", token: ""},
@@ -458,9 +458,9 @@ gameBoard = [
         {value: "QH", token: ""},
         {value: "QD", token: ""},
         {value: "5H", token: ""},
-        {value: "3D", token: ""}]
-    },
-    { cells: [
+        {value: "3D", token: ""}
+    ],
+    [
         {value: "KC", token: ""},
         {value: "8S", token: ""},
         {value: "TC", token: ""},
@@ -470,9 +470,9 @@ gameBoard = [
         {value: "AD", token: ""},
         {value: "KD", token: ""},
         {value: "4H", token: ""},
-        {value: "4D", token: ""}]
-    },
-    { cells: [
+        {value: "4D", token: ""}
+    ],
+    [
         {value: "AC", token: ""},
         {value: "7S", token: ""},
         {value: "6S", token: ""},
@@ -482,9 +482,9 @@ gameBoard = [
         {value: "2S", token: ""},
         {value: "2H", token: ""},
         {value: "3H", token: ""},
-        {value: "5D", token: ""}]
-    },
-    { cells: [
+        {value: "5D", token: ""}
+    ],
+    [
         {value: "W", token: "W"},
         {value: "AD", token: ""},
         {value: "KD", token: ""},
@@ -494,6 +494,6 @@ gameBoard = [
         {value: "8D", token: ""},
         {value: "7D", token: ""},
         {value: "6D", token: ""},
-        {value: "W", token: "W"}]
-    }
+        {value: "W", token: "W"}
+    ]
 ];
