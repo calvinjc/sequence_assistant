@@ -32,10 +32,10 @@ $(document).ready(function(){
 
 
 renderBoard = function() {
-    for (var x = 0; x < gameBoard.length; x++) {
-        var row = gameBoard[x];
-        for (var y = 0; y < row.length; y++) {
-            var cell = row[y];
+    for (var y = 0; y < gameBoard.length; y++) {
+        var row = gameBoard[y];
+        for (var x = 0; x < row.length; x++) {
+            var cell = row[x];
             cell.redWorth = calculateSquareWorth(x, y, "R");
             cell.blueWorth = calculateSquareWorth(x, y, "B");
             cell.totalWorth = cell.redWorth + cell.blueWorth;
@@ -62,8 +62,8 @@ renderBoard = function() {
             var card = _.findWhere(cardDeck, {value: cardValue});
             var loc1 = card.locations[0];
             var loc2 = card.locations[1];
-            gameBoard[loc1.x][loc1.y].highlight = "";
-            gameBoard[loc2.x][loc2.y].highlight = "";
+            gameBoard[loc1.y][loc1.x].highlight = "";
+            gameBoard[loc2.y][loc2.x].highlight = "";
         }
 
         renderBoard();
@@ -71,13 +71,13 @@ renderBoard = function() {
 
     $('.game-cell').click(function() {
         if (addTokenMode) {
-            var x = this.parentNode.rowIndex;
-            var y = this.cellIndex;
+            var y = this.parentNode.rowIndex;
+            var x = this.cellIndex;
 
-            if (gameBoard[x][y].token === "") {
+            if (gameBoard[y][x].token === "") {
                 placeToken(x, y, addTokenColor);
             }
-            else if (gameBoard[x][y].token === addTokenColor || _.contains(myHand, "JS") || _.contains(myHand, "JH")) {
+            else if (gameBoard[y][x].token === addTokenColor || _.contains(myHand, "JS") || _.contains(myHand, "JH")) {
                 clearToken(x, y);
             }
         }
@@ -102,54 +102,19 @@ renderBoard = function() {
 
 calculateSquareWorth = function(x, y, color) {
     var worth = 10;
-    if (gameBoard[x][y].token !== "") {
+    if (gameBoard[y][x].token !== "") {
         return 0;
     }
 
-    //vertical
     worth += calculateVertical(x, y, color);
-
-    //horizontal
     worth += calculateHorizontal(x, y, color);
-
-    //diagonalA
     worth += calculateDiagonalA(x, y, color);
-
-    //diagonalB
     worth += calculateDiagonalB(x, y, color);
 
     return worth;
 };
 
 calculateVertical = function(x, y, color) {
-    var worth = 0;
-
-    var max = 1;
-    while (!safeCheckOpponentValue(x+max, y, color) && max < 5) { max++; }
-    var min = 1;
-    while (!safeCheckOpponentValue(x-min, y, color) && min < 5) { min++; }
-
-    var blocked = ((max + min) < 6)
-    if (blocked) {
-        return 0;
-    }
-
-    var iter = 1;
-    while (iter < max) {
-        if (safeCheckMyValue(x+iter, y, color)) worth += 10;
-        iter++;
-    }
-    iter = 1;
-    while (iter < min) {
-        if (safeCheckMyValue(x-iter, y, color)) worth += 10;
-        iter++;
-    }
-
-    if (worth === 40) worth = 500;
-    return worth;
-};
-
-calculateHorizontal = function(x, y, color) {
     var worth = 0;
 
     var max = 1;
@@ -170,6 +135,34 @@ calculateHorizontal = function(x, y, color) {
     iter = 1;
     while (iter < min) {
         if (safeCheckMyValue(x, y-iter, color)) worth += 10;
+        iter++;
+    }
+
+    if (worth === 40) worth = 500;
+    return worth;
+};
+
+calculateHorizontal = function(x, y, color) {
+    var worth = 0;
+
+    var max = 1;
+    while (!safeCheckOpponentValue(x+max, y, color) && max < 5) { max++; }
+    var min = 1;
+    while (!safeCheckOpponentValue(x-min, y, color) && min < 5) { min++; }
+
+    var blocked = ((max + min) < 6)
+    if (blocked) {
+        return 0;
+    }
+
+    var iter = 1;
+    while (iter < max) {
+        if (safeCheckMyValue(x+iter, y, color)) worth += 10;
+        iter++;
+    }
+    iter = 1;
+    while (iter < min) {
+        if (safeCheckMyValue(x-iter, y, color)) worth += 10;
         iter++;
     }
 
@@ -235,8 +228,8 @@ calculateDiagonalB = function(x, y, color) {
 
 safeCheckMyValue = function(x, y, myColor) {
     if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
-        var cell = gameBoard[x][y];
-        return (gameBoard[x][y].token === myColor || gameBoard[x][y].token === "W");
+        var cell = gameBoard[y][x];
+        return (gameBoard[y][x].token === myColor || gameBoard[y][x].token === "W");
     }
     return false;
 };
@@ -248,8 +241,8 @@ safeCheckOpponentValue = function(x, y, myColor) {
     if (myColor === "G") opponentBColor = "R";
 
     if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
-        var cell = gameBoard[x][y];
-        return (gameBoard[x][y].token === opponentAColor || gameBoard[x][y].token === opponentBColor);
+        var cell = gameBoard[y][x];
+        return (gameBoard[y][x].token === opponentAColor || gameBoard[y][x].token === opponentBColor);
     }
     return true;
 };
@@ -281,8 +274,8 @@ renderCardList = function() {
             var card = _.findWhere(cardDeck, {value: cardValue});
             var loc1 = card.locations[0];
             var loc2 = card.locations[1];
-            gameBoard[loc1.x][loc1.y].highlight = "highlight";
-            gameBoard[loc2.x][loc2.y].highlight = "highlight";
+            gameBoard[loc1.y][loc1.x].highlight = "highlight";
+            gameBoard[loc2.y][loc2.x].highlight = "highlight";
         }
 
         renderBoard();
@@ -290,13 +283,13 @@ renderCardList = function() {
 };
 
 placeToken = function(x, y, color) {
-    if (_.contains(["R","B","G"], color) && gameBoard[x][y].token === "") {
-        gameBoard[x][y].token = color;
+    if (_.contains(["R","B","G"], color) && gameBoard[y][x].token === "") {
+        gameBoard[y][x].token = color;
     }
     renderBoard();
 };
 clearToken = function(x, y) {
-    gameBoard[x][y].token = "";
+    gameBoard[y][x].token = "";
     renderBoard();
 };
 
@@ -318,61 +311,61 @@ Handlebars.registerHelper("showRemoveToken", function(token) {
 
 
 cardDeck = [
-    { value: "2S", suit: "S", locations:[{x:0, y:1}, {x:8, y:6}]},
-    { value: "3S", suit: "S", locations:[{x:0, y:2}, {x:8, y:5}]},
-    { value: "4S", suit: "S", locations:[{x:0, y:3}, {x:8, y:4}]},
-    { value: "5S", suit: "S", locations:[{x:0, y:4}, {x:8, y:3}]},
-    { value: "6S", suit: "S", locations:[{x:0, y:5}, {x:8, y:2}]},
-    { value: "7S", suit: "S", locations:[{x:0, y:6}, {x:8, y:1}]},
-    { value: "8S", suit: "S", locations:[{x:0, y:7}, {x:7, y:1}]},
-    { value: "9S", suit: "S", locations:[{x:0, y:8}, {x:6, y:1}]},
-    { value: "TS", suit: "S", locations:[{x:1, y:9}, {x:5, y:1}]},
+    { value: "2S", suit: "S", locations:[{y:0, x:1}, {y:8, x:6}]},
+    { value: "3S", suit: "S", locations:[{y:0, x:2}, {y:8, x:5}]},
+    { value: "4S", suit: "S", locations:[{y:0, x:3}, {y:8, x:4}]},
+    { value: "5S", suit: "S", locations:[{y:0, x:4}, {y:8, x:3}]},
+    { value: "6S", suit: "S", locations:[{y:0, x:5}, {y:8, x:2}]},
+    { value: "7S", suit: "S", locations:[{y:0, x:6}, {y:8, x:1}]},
+    { value: "8S", suit: "S", locations:[{y:0, x:7}, {y:7, x:1}]},
+    { value: "9S", suit: "S", locations:[{y:0, x:8}, {y:6, x:1}]},
+    { value: "TS", suit: "S", locations:[{y:1, x:9}, {y:5, x:1}]},
     { value: "JS", suit: "S", locations:[]},
-    { value: "QS", suit: "S", locations:[{x:2, y:9}, {x:4, y:1}]},
-    { value: "KS", suit: "S", locations:[{x:3, y:9}, {x:3, y:1}]},
-    { value: "AS", suit: "S", locations:[{x:4, y:9}, {x:2, y:1}]},
+    { value: "QS", suit: "S", locations:[{y:2, x:9}, {y:4, x:1}]},
+    { value: "KS", suit: "S", locations:[{y:3, x:9}, {y:3, x:1}]},
+    { value: "AS", suit: "S", locations:[{y:4, x:9}, {y:2, x:1}]},
 
-    { value: "2C", suit: "C", locations:[{x:1, y:4}, {x:3, y:6}]},
-    { value: "3C", suit: "C", locations:[{x:1, y:3}, {x:3, y:5}]},
-    { value: "4C", suit: "C", locations:[{x:1, y:2}, {x:3, y:4}]},
-    { value: "5C", suit: "C", locations:[{x:1, y:1}, {x:3, y:3}]},
-    { value: "6C", suit: "C", locations:[{x:1, y:0}, {x:3, y:2}]},
-    { value: "7C", suit: "C", locations:[{x:2, y:0}, {x:4, y:2}]},
-    { value: "8C", suit: "C", locations:[{x:3, y:0}, {x:5, y:2}]},
-    { value: "9C", suit: "C", locations:[{x:4, y:0}, {x:6, y:2}]},
-    { value: "TC", suit: "C", locations:[{x:5, y:0}, {x:7, y:2}]},
+    { value: "2C", suit: "C", locations:[{y:1, x:4}, {y:3, x:6}]},
+    { value: "3C", suit: "C", locations:[{y:1, x:3}, {y:3, x:5}]},
+    { value: "4C", suit: "C", locations:[{y:1, x:2}, {y:3, x:4}]},
+    { value: "5C", suit: "C", locations:[{y:1, x:1}, {y:3, x:3}]},
+    { value: "6C", suit: "C", locations:[{y:1, x:0}, {y:3, x:2}]},
+    { value: "7C", suit: "C", locations:[{y:2, x:0}, {y:4, x:2}]},
+    { value: "8C", suit: "C", locations:[{y:3, x:0}, {y:5, x:2}]},
+    { value: "9C", suit: "C", locations:[{y:4, x:0}, {y:6, x:2}]},
+    { value: "TC", suit: "C", locations:[{y:5, x:0}, {y:7, x:2}]},
     { value: "JC", suit: "C", locations:[]},
-    { value: "QC", suit: "C", locations:[{x:6, y:0}, {x:7, y:3}]},
-    { value: "KC", suit: "C", locations:[{x:7, y:0}, {x:7, y:4}]},
-    { value: "AC", suit: "C", locations:[{x:8, y:0}, {x:7, y:5}]},
+    { value: "QC", suit: "C", locations:[{y:6, x:0}, {y:7, x:3}]},
+    { value: "KC", suit: "C", locations:[{y:7, x:0}, {y:7, x:4}]},
+    { value: "AC", suit: "C", locations:[{y:8, x:0}, {y:7, x:5}]},
 
-    { value: "2D", suit: "D", locations:[{x:2, y:2}, {x:5, y:9}]},
-    { value: "3D", suit: "D", locations:[{x:2, y:3}, {x:6, y:9}]},
-    { value: "4D", suit: "D", locations:[{x:2, y:4}, {x:7, y:9}]},
-    { value: "5D", suit: "D", locations:[{x:2, y:5}, {x:8, y:9}]},
-    { value: "6D", suit: "D", locations:[{x:2, y:6}, {x:9, y:8}]},
-    { value: "7D", suit: "D", locations:[{x:2, y:7}, {x:9, y:7}]},
-    { value: "8D", suit: "D", locations:[{x:3, y:7}, {x:9, y:6}]},
-    { value: "9D", suit: "D", locations:[{x:4, y:7}, {x:9, y:5}]},
-    { value: "TD", suit: "D", locations:[{x:5, y:7}, {x:9, y:4}]},
+    { value: "2D", suit: "D", locations:[{y:2, x:2}, {y:5, x:9}]},
+    { value: "3D", suit: "D", locations:[{y:2, x:3}, {y:6, x:9}]},
+    { value: "4D", suit: "D", locations:[{y:2, x:4}, {y:7, x:9}]},
+    { value: "5D", suit: "D", locations:[{y:2, x:5}, {y:8, x:9}]},
+    { value: "6D", suit: "D", locations:[{y:2, x:6}, {y:9, x:8}]},
+    { value: "7D", suit: "D", locations:[{y:2, x:7}, {y:9, x:7}]},
+    { value: "8D", suit: "D", locations:[{y:3, x:7}, {y:9, x:6}]},
+    { value: "9D", suit: "D", locations:[{y:4, x:7}, {y:9, x:5}]},
+    { value: "TD", suit: "D", locations:[{y:5, x:7}, {y:9, x:4}]},
     { value: "JD", suit: "D", locations:[]},
-    { value: "QD", suit: "D", locations:[{x:6, y:7}, {x:9, y:3}]},
-    { value: "KD", suit: "D", locations:[{x:7, y:7}, {x:9, y:2}]},
-    { value: "AD", suit: "D", locations:[{x:7, y:6}, {x:9, y:1}]},
+    { value: "QD", suit: "D", locations:[{y:6, x:7}, {y:9, x:3}]},
+    { value: "KD", suit: "D", locations:[{y:7, x:7}, {y:9, x:2}]},
+    { value: "AD", suit: "D", locations:[{y:7, x:6}, {y:9, x:1}]},
 
-    { value: "2H", suit: "H", locations:[{x:5, y:4}, {x:8, y:7}]},
-    { value: "3H", suit: "H", locations:[{x:5, y:5}, {x:8, y:8}]},
-    { value: "4H", suit: "H", locations:[{x:4, y:5}, {x:7, y:8}]},
-    { value: "5H", suit: "H", locations:[{x:4, y:4}, {x:6, y:8}]},
-    { value: "6H", suit: "H", locations:[{x:4, y:3}, {x:5, y:8}]},
-    { value: "7H", suit: "H", locations:[{x:5, y:3}, {x:4, y:8}]},
-    { value: "8H", suit: "H", locations:[{x:6, y:3}, {x:3, y:8}]},
-    { value: "9H", suit: "H", locations:[{x:6, y:4}, {x:2, y:8}]},
-    { value: "TH", suit: "H", locations:[{x:6, y:5}, {x:1, y:8}]},
+    { value: "2H", suit: "H", locations:[{y:5, x:4}, {y:8, x:7}]},
+    { value: "3H", suit: "H", locations:[{y:5, x:5}, {y:8, x:8}]},
+    { value: "4H", suit: "H", locations:[{y:4, x:5}, {y:7, x:8}]},
+    { value: "5H", suit: "H", locations:[{y:4, x:4}, {y:6, x:8}]},
+    { value: "6H", suit: "H", locations:[{y:4, x:3}, {y:5, x:8}]},
+    { value: "7H", suit: "H", locations:[{y:5, x:3}, {y:4, x:8}]},
+    { value: "8H", suit: "H", locations:[{y:6, x:3}, {y:3, x:8}]},
+    { value: "9H", suit: "H", locations:[{y:6, x:4}, {y:2, x:8}]},
+    { value: "TH", suit: "H", locations:[{y:6, x:5}, {y:1, x:8}]},
     { value: "JH", suit: "H", locations:[]},
-    { value: "QH", suit: "H", locations:[{x:6, y:6}, {x:1, y:7}]},
-    { value: "KH", suit: "H", locations:[{x:5, y:6}, {x:1, y:6}]},
-    { value: "AH", suit: "H", locations:[{x:4, y:6}, {x:1, y:5}]}
+    { value: "QH", suit: "H", locations:[{y:6, x:6}, {y:1, x:7}]},
+    { value: "KH", suit: "H", locations:[{y:5, x:6}, {y:1, x:6}]},
+    { value: "AH", suit: "H", locations:[{y:4, x:6}, {y:1, x:5}]}
 ];
 
 gameBoard = [
