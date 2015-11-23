@@ -108,66 +108,160 @@ calculateSquareWorth = function(x, y, color) {
 
     worth += calculateVertical(x, y, color);
     worth += calculateHorizontal(x, y, color);
-    worth += calculateDiagonalA(x, y, color);
-    worth += calculateDiagonalB(x, y, color);
+    //worth += calculateDiagonalA(x, y, color);
+    //worth += calculateDiagonalB(x, y, color);
 
     return worth;
 };
 
 calculateVertical = function(x, y, color) {
-    var worth = 0;
+    // to calculate our worth we first need to detect our borders to determine if we have room to complete a new set
+    var positiveBorder = 1;
+    var myTokensInARow = 0;
+    var beginningOfCompletedSet = 1;
+    // loop until we hit another color token, the board edge or detect a completed set
+    while (!safeCheckOpponentValue(x, y+positiveBorder, color) && myTokensInARow < 5) {
+        if (safeCheckMyValue(x, y+positiveBorder, color)) {
+            if (myTokensInARow === 0) beginningOfCompletedSet = positiveBorder;
+            myTokensInARow++;
+        } else {
+            myTokensInARow = 0;
+        }
+        positiveBorder++;
+    }
+    // if we found a completed set the border is the beginning of that set
+    if (myTokensInARow >= 5) positiveBorder = beginningOfCompletedSet;
+    if (positiveBorder > 5) positiveBorder = 5;
 
-    var max = 1;
-    while (!safeCheckOpponentValue(x, y+max, color) && max < 5) { max++; }
-    var min = 1;
-    while (!safeCheckOpponentValue(x, y-min, color) && min < 5) { min++; }
+    // do the same calculation to detect our border in the other direction
+    var negativeBorder = 1;
+    myTokensInARow = 0;
+    beginningOfCompletedSet = 1;
+    // loop until we hit another color token, the board edge or detect a completed set
+    while (!safeCheckOpponentValue(x, y-negativeBorder, color) && myTokensInARow < 5) {
+        if (safeCheckMyValue(x, y-negativeBorder, color)) {
+            if (myTokensInARow === 0) beginningOfCompletedSet = negativeBorder;
+            myTokensInARow++;
+        } else {
+            myTokensInARow = 0;
+        }
+        negativeBorder++;
+    }
+    if (myTokensInARow >= 5) negativeBorder = beginningOfCompletedSet;
+    if (negativeBorder > 5) negativeBorder = 5;
 
-    var blocked = ((max + min) < 6)
+    // We are blocked if we can't fit 5 tokens in a row, since we start our border indexes at 1 we're checking < 6
+    var blocked = ((positiveBorder + negativeBorder) < 6)
     if (blocked) {
         return 0;
     }
 
+    // Grant a large bonus if this will complete a set
+    var inARowPositive = 0;
+    var inARowNegative = 0;
+    while (safeCheckMyValue(x, y+(inARowPositive+1), color) && inARowPositive < positiveBorder) inARowPositive++;
+    while (safeCheckMyValue(x, y-(inARowNegative+1), color) && inARowNegative < negativeBorder) inARowNegative++;
+
+    if ((inARowPositive + inARowNegative) >= 4) return 500;
+
+    // Otherwise calculate worth based on how close we can get to completing a set
+    // worth increases for every friendly token within our borders because the more tokens, the closer we are to a set
+    var worth_PositiveDirection = 0;
     var iter = 1;
-    while (iter < max) {
-        if (safeCheckMyValue(x, y+iter, color)) worth += 10;
-        iter++;
+    // as odd as it sounds, if the cell on our border and the cell just beyond our border are both ours we aren't adding any value
+    if (!(safeCheckMyValue(x, y+(positiveBorder-1), color) && safeCheckMyValue(x, y+positiveBorder, color))) {
+        while (iter < positiveBorder) {
+            // if the current color is ours add worth
+            if (safeCheckMyValue(x, y + iter, color)) worth_PositiveDirection += 10;
+            iter++;
+        }
     }
+    // make the same calculation in the other direction
+    var worth_NegativeDirection = 0;
     iter = 1;
-    while (iter < min) {
-        if (safeCheckMyValue(x, y-iter, color)) worth += 10;
-        iter++;
+    if (!(safeCheckMyValue(x, y-(negativeBorder-1), color) && safeCheckMyValue(x, y-negativeBorder, color))) {
+        while (iter < negativeBorder) {
+            if (safeCheckMyValue(x, y-iter, color)) worth_NegativeDirection += 10;
+            iter++;
+        }
     }
 
-    if (worth === 40) worth = 500;
-    return worth;
+    return worth_PositiveDirection + worth_NegativeDirection;
 };
 
 calculateHorizontal = function(x, y, color) {
-    var worth = 0;
+    // to calculate our worth we first need to detect our borders to determine if we have room to complete a new set
+    var positiveBorder = 1;
+    var myTokensInARow = 0;
+    var beginningOfCompletedSet = 1;
+    // loop until we hit another color token, the board edge or detect a completed set
+    while (!safeCheckOpponentValue(x+positiveBorder, y, color) && myTokensInARow < 5) {
+        if (safeCheckMyValue(x+positiveBorder, y, color)) {
+            if (myTokensInARow === 0) beginningOfCompletedSet = positiveBorder;
+            myTokensInARow++;
+        } else {
+            myTokensInARow = 0;
+        }
+        positiveBorder++;
+    }
+    // if we found a completed set the border is the beginning of that set
+    if (myTokensInARow >= 5) positiveBorder = beginningOfCompletedSet;
+    if (positiveBorder > 5) positiveBorder = 5;
 
-    var max = 1;
-    while (!safeCheckOpponentValue(x+max, y, color) && max < 5) { max++; }
-    var min = 1;
-    while (!safeCheckOpponentValue(x-min, y, color) && min < 5) { min++; }
+    // do the same calculation to detect our border in the other direction
+    var negativeBorder = 1;
+    myTokensInARow = 0;
+    beginningOfCompletedSet = 1;
+    // loop until we hit another color token, the board edge or detect a completed set
+    while (!safeCheckOpponentValue(x-negativeBorder, y, color) && myTokensInARow < 5) {
+        if (safeCheckMyValue(x-negativeBorder, y, color)) {
+            if (myTokensInARow === 0) beginningOfCompletedSet = negativeBorder;
+            myTokensInARow++;
+        } else {
+            myTokensInARow = 0;
+        }
+        negativeBorder++;
+    }
+    if (myTokensInARow >= 5) negativeBorder = beginningOfCompletedSet;
+    if (negativeBorder > 5) negativeBorder = 5;
 
-    var blocked = ((max + min) < 6)
+    // We are blocked if we can't fit 5 tokens in a row, since we start our border indexes at 1 we're checking < 6
+    var blocked = ((positiveBorder + negativeBorder) < 6)
     if (blocked) {
         return 0;
     }
 
+    // Grant a large bonus if this will complete a set
+    var inARowPositive = 0;
+    var inARowNegative = 0;
+    while (safeCheckMyValue(x+(inARowPositive+1), y, color) && inARowPositive < positiveBorder) inARowPositive++;
+    while (safeCheckMyValue(x-(inARowNegative+1), y, color) && inARowNegative < negativeBorder) inARowNegative++;
+
+    if ((inARowPositive + inARowNegative) >= 4) return 500;
+
+    // Otherwise calculate worth based on how close we can get to completing a set
+    // worth increases for every friendly token within our borders because the more tokens, the closer we are to a set
+    var worth_PositiveDirection = 0;
     var iter = 1;
-    while (iter < max) {
-        if (safeCheckMyValue(x+iter, y, color)) worth += 10;
-        iter++;
+    // as odd as it sounds, if the cell on our border and the cell just beyond our border are both ours we aren't adding any value
+    if (!(safeCheckMyValue(x+(positiveBorder-1), y, color) && safeCheckMyValue(x+positiveBorder, y, color))) {
+        while (iter < positiveBorder) {
+            // if the current color is ours add worth
+            if (safeCheckMyValue(x + iter, y, color)) worth_PositiveDirection += 10;
+            iter++;
+        }
     }
+    // make the same calculation in the other direction
+    var worth_NegativeDirection = 0;
     iter = 1;
-    while (iter < min) {
-        if (safeCheckMyValue(x-iter, y, color)) worth += 10;
-        iter++;
+    if (!(safeCheckMyValue(x-(negativeBorder-1), y, color) && safeCheckMyValue(x-negativeBorder, y, color))) {
+        while (iter < negativeBorder) {
+            if (safeCheckMyValue(x-iter, y, color)) worth_NegativeDirection += 10;
+            iter++;
+        }
     }
 
-    if (worth === 40) worth = 500;
-    return worth;
+    return worth_PositiveDirection + worth_NegativeDirection;
 };
 
 calculateDiagonalA = function(x, y, color) {
