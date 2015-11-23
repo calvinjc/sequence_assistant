@@ -43,6 +43,11 @@
     margin-bottom: 10px;
 }
 
+.row.add-card-lists {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .select-card-suit.col-md-3 {
     padding-left: 0px;
     padding-right: 0px;
