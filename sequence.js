@@ -1,3 +1,4 @@
+// initialize global variables
 myHand = [];
 addTokenMode = false;
 addTokenColor = "";
@@ -6,6 +7,7 @@ showTotalWorth = true;
 showColorWorth = false;
 showOnlyHand = false;
 
+// main
 $(document).ready(function(){
 
     renderBoard();
@@ -15,6 +17,7 @@ $(document).ready(function(){
     $("#showColorWorth").prop('checked', showColorWorth);
     $("#showOnlyHand").prop('checked', showOnlyHand);
 
+    // event handlers for when the view options are changed
     $("#showTotalWorth").change(function() {
         showTotalWorth = $("#showTotalWorth").is(':checked');
         renderBoard();
@@ -30,8 +33,8 @@ $(document).ready(function(){
 
 });
 
-
 renderBoard = function() {
+    // calculate the worth of every square
     for (var y = 0; y < gameBoard.length; y++) {
         var row = gameBoard[y];
         for (var x = 0; x < row.length; x++) {
@@ -42,17 +45,18 @@ renderBoard = function() {
         }
     }
 
+    // render the game board with the current options and data
     var gameBoardTemplate = Handlebars.compile($("#gameBoard").html());
-    var gameBoardContext = {
+    $("#gameBoardDiv").html(gameBoardTemplate({
         rows: gameBoard,
         hand: myHand,
         addTokenMode: addTokenMode,
         showTotalWorth: showTotalWorth,
         showColorWorth: showColorWorth,
         showOnlyHand: showOnlyHand
-    };
-    $("#gameBoardDiv").html(gameBoardTemplate(gameBoardContext));
+    }));
 
+    // when a card in your hand is clicked remove it from your hand
     $('.hand-card').click(function() {
         var cardValue = $(this).html();
         myHand = _.without(myHand, cardValue);
@@ -69,6 +73,7 @@ renderBoard = function() {
         renderBoard();
     });
 
+    // when a square on the game board is clicked
     $('.game-cell').click(function() {
         if (addTokenMode) {
             var y = this.parentNode.rowIndex;
@@ -83,6 +88,7 @@ renderBoard = function() {
         }
     });
 
+    // event handlers for the Add Token buttons
     $('#addRedToken').click(function() {
         addTokenMode = true;
         addTokenColor = "R";
@@ -101,11 +107,15 @@ renderBoard = function() {
 };
 
 calculateSquareWorth = function(x, y, color) {
+    // each square has an inherent value regardless of its surroundings so start with 10 instead of 0
     var worth = 10;
+
+    // if the cell already has a token we don't need to calculate it's value
     if (gameBoard[y][x].token !== "") {
         return 0;
     }
 
+    // calculate worth by checking the location's surroundings in every direction
     worth += calculateWorthForDirection(x, y, color, "vertical");
     worth += calculateWorthForDirection(x, y, color, "horizontal");
     worth += calculateWorthForDirection(x, y, color, "diagonalA");
@@ -114,6 +124,10 @@ calculateSquareWorth = function(x, y, color) {
     return worth;
 };
 
+/*
+ * In order to prevent code duplication for each direction we need a generic way to get the x, y coordinates
+ * for the direction we're searching
+ */
 getXYAfterIncrementForDirection = function(x, y, increment, direction) {
     if (direction === "horizontal") {
         return {x: (x + increment), y: y };
@@ -129,6 +143,11 @@ getXYAfterIncrementForDirection = function(x, y, increment, direction) {
     }
 };
 
+/*
+ * A generic function that can calculate the location's worth for a given direction to reduce duplicating code to
+ * calculate each direction separately.  It looks for friendly and opposing tokens on both it's positive and negative
+ * side for the given direction.
+ */
 calculateWorthForDirection = function(x, y, color, direction) {
     // to calculate our worth we first need to detect our borders to determine if we have room to complete a new set
     var positiveBorder = 1;
@@ -169,15 +188,17 @@ calculateWorthForDirection = function(x, y, color, direction) {
     if (myTokensInARow >= 5) negativeBorder = beginningOfCompletedSet;
     if (negativeBorder > 5) negativeBorder = 5;
 
-
     // We are blocked if we can't fit 5 tokens in a row, since we start our border indexes at 1 we're checking < 6
-    var blocked = ((positiveBorder + negativeBorder) < 6)
+    var blocked = ((positiveBorder + negativeBorder) < 6);
     if (blocked) {
         return 0;
     }
 
-
-    // Grant a large bonus if this will complete a set
+    /*
+     * Grant a large bonus if this will complete a set.  I want it to be very clear that if you can complete a set
+     * that is the most valuable move you can make.  Otherwise a location that is slightly beneficial in multiple
+     * directions could be considered more valuable than placing 5 in a row in one direction.
+     */
     var inARowPositive = 0;
     loc = getXYAfterIncrementForDirection(x, y, inARowPositive+1, direction);
     while (safeCheckMyValue(loc.x, loc.y, color) && inARowPositive < positiveBorder) {
@@ -199,7 +220,8 @@ calculateWorthForDirection = function(x, y, color, direction) {
     // worth increases for every friendly token within our borders because the more tokens, the closer we are to a set
     var worth_PositiveDirection = 0;
     var iter = 1;
-    // as odd as it sounds, if the cell on our border and the cell just beyond our border are both ours we aren't adding any value
+    // As odd as it sounds, if the cell on our border and the cell just beyond our border are both ours we aren't adding
+    // any value.  See the Readme for more details
     loc = getXYAfterIncrementForDirection(x, y, positiveBorder-1, direction);
     var locB = getXYAfterIncrementForDirection(x, y, positiveBorder, direction);
     if (!(safeCheckMyValue(loc.x, loc.y, color) && safeCheckMyValue(locB.x, locB.y, color))) {
@@ -226,6 +248,7 @@ calculateWorthForDirection = function(x, y, color, direction) {
     return worth_PositiveDirection + worth_NegativeDirection;
 };
 
+// a helper function for making sure we aren't leaving our bounds
 safeCheckMyValue = function(x, y, myColor) {
     if (x >= 0 && x <= 9 && y >= 0 && y <= 9) {
         var cell = gameBoard[y][x];
@@ -247,6 +270,7 @@ safeCheckOpponentValue = function(x, y, myColor) {
     return true;
 };
 
+// display all the cards so you can add cards to your hand
 renderCardList = function() {
     var heartCards = _.where(cardDeck, {suit: "H"});
     var diamondCards = _.where(cardDeck, {suit: "D"});
@@ -310,6 +334,7 @@ Handlebars.registerHelper("showRemoveToken", function(token) {
 });
 
 
+// Initialize the card deck and the game board
 cardDeck = [
     { value: "2S", suit: "S", locations:[{y:0, x:1}, {y:8, x:6}]},
     { value: "3S", suit: "S", locations:[{y:0, x:2}, {y:8, x:5}]},

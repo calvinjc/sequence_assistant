@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="./libs/bootstrap/bootstrap.min.css">
+
+    <script src="./libs/jquery-1.11.3.min.js"></script>
+    <script src="./libs/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./libs/showdown.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+    <a href="index.html" >back to the app</a>
+    <div id="readMe"></div>
+    <a href="index.html" >back to the app</a>
+
+    <script type="text/javascript">
+        $.ajax({
+            url: "README.md",
+            context: document.body,
+            success: function(readMeHTML){
+                var converter = new showdown.Converter();
+                $("#readMe").append(converter.makeHtml(readMeHTML));
+            }
+        });
+    </script>
+</body>
+</html>
