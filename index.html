@@ -11,13 +11,28 @@
     <script src="./libs/bootstrap/bootstrap.min.js"></script>
     <script src="./libs/handlebars.js"></script>
     <script src="./libs/underscore.js"></script>
+    <script src="./libs/showdown.js"></script>
     <script src="sequence.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <div class="container-fluid">
-        <h1 class="title">Sequence Board Game Assistant</h1> <a href="help.html" >description / help</a>
+        <h1 class="title">Sequence Board Game Assistant</h1>
+        <button type="button" id="descriptionBtn" class="btn" data-toggle="modal" data-target=".bs-example-modal-lg">Description / Help</button>
+        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="App Description">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div id="description-content" class="modal-body">
+                        <a href="https://github.com/calvinjc/sequence_assistant">https://github.com/calvinjc/sequence_assistant</a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-sm-10 col-md-6">
                 <div id="gameBoardDiv"></div>
@@ -79,10 +94,10 @@
         {{/if}}
         <br/>
         <div class="hand">
-        <h4>Hand:</h4>
-        {{#each hand}}
-            <button class="hand-card btn">{{this}}</button>
-        {{/each}}
+            <h4>Hand:</h4>
+            {{#each hand}}
+                <button class="hand-card btn">{{this}}</button>
+            {{/each}}
         </div>
     </script>
 
@@ -121,5 +136,12 @@
 
     </script>
 
+    <nav class="navbar navbar-default navbar-bottom">
+        <div class="container">
+            <p class="navbar-text">
+                <a href="https://github.com/calvinjc/sequence_assistant">View it on GitHub</a>
+            </p>
+        </div>
+    </nav>
 </body>
 </html>

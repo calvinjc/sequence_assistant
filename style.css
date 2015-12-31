@@ -1,3 +1,7 @@
+body, html {
+    height: 100%;
+}
+
 .title {
     display: inline-block;
     margin-right: 20px;
@@ -19,6 +23,9 @@
     color: #eeeeee;
 }
 
+.game-cell{
+    height: 57px;
+}
 
 .game-cell.R {
     background-color: #ff0000;
@@ -44,6 +51,7 @@
     margin-top: 0px;
 }
 .hand {
+    height: 69px;
     margin-bottom: 10px;
 }
 
@@ -55,4 +63,31 @@
 .select-card-suit.col-md-3 {
     padding-left: 0px;
     padding-right: 0px;
+}
+
+.container-fluid {
+    min-height: 100%;
+    overflow: auto;
+    padding-bottom: 62px; /* this needs to be bigger than footer height*/
+}
+
+.navbar.navbar-bottom {
+    position: relative;
+    margin-top: -52px; /* negative value of footer height */
+    margin-bottom: 0px;
+    clear:both;
+}
+
+@media (max-width: 991px) {
+    #descriptionBtn {
+        margin-bottom: 15px;
+    }
+}
+
+@media (min-width: 992px) {
+    #descriptionBtn {
+        float: right;
+        margin-top: 20px;
+        margin-right: 15px;
+    }
 }

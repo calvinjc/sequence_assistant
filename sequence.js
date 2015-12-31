@@ -31,6 +31,16 @@ $(document).ready(function(){
         renderBoard();
     });
 
+    $("#descriptionBtn").click(function() {
+        $.ajax({
+            url: "README.md",
+            context: document.body,
+            success: function(readMeHTML){
+                var converter = new showdown.Converter();
+                $("#description-content").html(converter.makeHtml(readMeHTML));
+            }
+        });
+    });
 });
 
 renderBoard = function() {
